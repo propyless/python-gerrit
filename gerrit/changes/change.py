@@ -5,6 +5,8 @@ Change
 Manage gerrit changes
 """
 
+import urllib
+
 from gerrit.helper import decode_json
 from gerrit.error import UnhandledError
 from gerrit.projects.project import Project
@@ -53,6 +55,11 @@ class Change(object):
         # HTTP REST API HEADERS
         self._change_id = '%s~%s~%s' % (project, branch, change_id)
         self._gerrit_con = self._gerrit_con
+
+        self._change_id = urllib.parse.quote(
+            self._change_id,
+            safe='', # '/' should be quoted as well
+        )
 
         r_endpoint = "/a/changes/%s/" % self._change_id
 
