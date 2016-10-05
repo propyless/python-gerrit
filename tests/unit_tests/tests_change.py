@@ -98,6 +98,30 @@ class ChangeTestCase(unittest.TestCase):
                 ''
             )
 
+    def test_get_change_special_characters(self):
+        req = mock.Mock()
+        req.status_code = 200
+        req.content = ')]}\'{"id": ""}'.encode('utf-8')
+        gerrit_con = mock.Mock()
+        gerrit_con.call.return_value = req
+
+        pjt = Project(gerrit_con)
+        project = pjt.get_project('gerritproject')
+        cng = Change(gerrit_con)
+        change = cng.get_change(
+            'subproject/project',
+            'master',
+            'I01440b5fd46a67ee38c9ef2c22eb145b8547cbb2'
+        )
+        print(gerrit_con.call.call_args_list)
+        self.assertEqual(
+            gerrit_con.call.call_args_list,
+            [
+                mock.ANY,
+                mock.call(r_endpoint = '/a/changes/subproject%2Fproject%7Emaster%7EI01440b5fd46a67ee38c9ef2c22eb145b8547cbb2/')
+            ],
+        )
+
     def test_get_change_doesnt_exist(self):
         req = mock.Mock()
         req.status_code = 404
